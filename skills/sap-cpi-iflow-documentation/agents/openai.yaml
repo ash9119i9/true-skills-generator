@@ -1,0 +1,4 @@
+interface:
+  display_name: "SAP CPI iFlow Documentation"
+  short_description: "Document existing SAP CPI integration flows"
+  default_prompt: "Use $sap-cpi-iflow-documentation to document this existing SAP CPI integration flow from the supplied evidence."

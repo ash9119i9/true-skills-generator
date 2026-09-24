@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic structural fixture, not a deployable SAP export. -->
+<b:definitions xmlns:b="http://www.omg.org/spec/BPMN/20100524/MODEL"
+               xmlns:s="urn:synthetic:sap-properties"
+               xmlns:di="http://www.omg.org/spec/BPMN/20100524/DI">
+  <b:collaboration id="collaboration">
+    <b:participant id="sender" name="Sender"/>
+    <b:participant id="integration" name="Synthetic flow" processRef="main"/>
+    <b:messageFlow id="channel" sourceRef="sender" targetRef="start">
+      <b:extensionElements><s:property><s:key>adapterType</s:key><s:value>HTTPS</s:value></s:property></b:extensionElements>
+    </b:messageFlow>
+  </b:collaboration>
+  <b:process id="main">
+    <!-- Deliberately out of execution order. -->
+    <b:endEvent id="end"/>
+    <b:serviceTask id="transform" name="Transform">
+      <b:extensionElements>
+        <s:property><s:key>script</s:key><s:value>transform.groovy</s:value></s:property>
+        <s:property><s:key>password</s:key><s:value>SECRET_FIXTURE_VALUE</s:value></s:property>
+      </b:extensionElements>
+    </b:serviceTask>
+    <b:startEvent id="start"/>
+    <b:exclusiveGateway id="route" default="default-route"/>
+    <b:callActivity id="call" calledElement="local"/>
+    <b:sequenceFlow id="first" sourceRef="start" targetRef="route"/>
+    <b:sequenceFlow id="selected" sourceRef="route" targetRef="transform">
+      <b:conditionExpression>${property.kind} = 'example'</b:conditionExpression>
+    </b:sequenceFlow>
+    <b:sequenceFlow id="default-route" sourceRef="route" targetRef="call"/>
+    <b:sequenceFlow id="last" sourceRef="transform" targetRef="end"/>
+    <b:sequenceFlow id="call-end" sourceRef="call" targetRef="end"/>
+    <b:subProcess id="exception" name="Exception path">
+      <b:startEvent id="error-start"><b:errorEventDefinition/></b:startEvent>
+      <b:endEvent id="error-end"><b:errorEventDefinition/></b:endEvent>
+      <b:sequenceFlow id="handler-edge" sourceRef="error-start" targetRef="error-end"/>
+    </b:subProcess>
+  </b:process>
+  <b:process id="local">
+    <b:startEvent id="local-start"/>
+    <b:endEvent id="local-end"/>
+    <b:sequenceFlow id="local-edge" sourceRef="local-start" targetRef="local-end"/>
+  </b:process>
+  <di:BPMNDiagram id="main"><di:BPMNPlane id="canvas" bpmnElement="collaboration"/></di:BPMNDiagram>
+</b:definitions>
